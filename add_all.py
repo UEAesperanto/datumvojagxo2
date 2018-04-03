@@ -1,0 +1,3 @@
+import add_landoj_kotizoj
+
+add_landoj_kotizoj
