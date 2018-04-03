@@ -8,9 +8,7 @@ import json
 import configparser
 from BeautifulSoup import BeautifulSoup as BS
 
-api_url = "http://localhost:3000"
-uzantnomo = "ana"
-pasvorto = "123"
+api_url = config['api']['url'],
 token = ''
 
 def get_token():
