@@ -6,18 +6,15 @@ import urllib
 import urllib2
 import json
 import configparser
+import util
 from BeautifulSoup import BeautifulSoup as BS
+
+config = configparser.ConfigParser()
+config.read('config.cfg')
 
 api_url = config['api']['url'],
 token = ''
-
-def get_token():
-    if(token == ''):
-        data = {'uzantnomo': config['api']['uzantnomo'], 'pasvorto': config['api']['pasvorto']}
-        response = requests.post(api_url + '/admin/ensaluti', data=data)
-        return response.json()['token']
-    else:
-        return token
+token = util.get_token(token)
 
 def get_landoj():
     response = requests.get(api_url + '/landoj')
@@ -25,12 +22,16 @@ def get_landoj():
 
 def post_perantoj(data):
     print "Enmetante datumojn de peranto: " + data['publikaNomo']
-    headers = {'x-access-token': get_token()}
+    headers = {'x-access-token': token}
     request = requests.post(api_url + '/perantoj', headers=headers, data=data)
-    if request.status_code != 201:
-        print request.status_code, data
-    else:
+    if request.status_code == 201:
         print "Sukcese enmetita"
+    elif (request.status_code == 400) or (request.status_code == 403):
+        token = ''
+        token = util.get_token(token)
+        headers = {'x-access-token': token}
+        request = requests.post(api_url + '/perantoj', headers=headers, data=data)
+
 
 def get_perantoj():
     url = 'https://uea.org/alighoj/perantoj'

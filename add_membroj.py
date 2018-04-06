@@ -7,6 +7,7 @@ import re
 import cookielib
 import json
 import configparser
+import util
 from BeautifulSoup import BeautifulSoup as BS
 
 jar = cookielib.FileCookieJar("cookie")
@@ -18,31 +19,11 @@ config.read('config.cfg')
 api_url = config['api']['url']
 token = ''
 
-def ensaluti():
-    url = 'https://db.uea.org/index.php'
-    user_agent = 'Mozilla/4.0 (compatible; MSIE 5.5; Windows NT)'
-
-    data_login = urllib.urlencode(
-                 {"uvorto": config['nuna_db']['uzantnomo'],
-                 "pvorto": config['nuna_db']['pasvorto']})
-    login_request = urllib2.Request(url, data_login)
-    opener.open(login_request)
-
-def get_token():
-    if(token == ''):
-        data = {'uzantnomo': config['api']['uzantnomo'], 'pasvorto': config['api']['pasvorto']}
-        response = requests.post(api_url + '/admin/ensaluti', data=data)
-        return response.json()['token']
-    else:
-        return token
-
 def post_uzanto(uzanto_json):
-    headers = {'x-access-token': get_token()}
+    headers = {'x-access-token': util.get_token(token)}
     request = requests.post(api_url + '/uzantoj/adapti', headers=headers, data=uzanto_json)
     if request.status_code == 201:
         return request.json()['id']
-    elif request.status_code == 200:
-        print request.json()
     else:
         print request.status_code, uzanto_json
         return -1
@@ -56,7 +37,7 @@ def get_grupoj():
     return dict(map(lambda x: [x['mallongigilo'], x['id']], response.json()))
 
 def get_membroj():
-    ensaluti()
+    util.ensaluti(opener)
     data_listo = urllib.urlencode(
                  {"adreso":"j",
                  "ekskl":"jes",
@@ -149,10 +130,50 @@ def get_membrecoj(membrecoj_str):
                               'komencdato':'20' + str(jarcifero) + '-01-01',
                               'findato': '20' + str(jarcifero + 1) + '-02-20',
                               'dumviva': 0})
+        elif ('es' == membreco):
+            membrecoj.append({'idGrupo':grupoj['ES'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('kom.a' == membreco):
+            membrecoj.append({'idGrupo':grupoj['KOM.A'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('kom.b' == membreco):
+            membrecoj.append({'idGrupo':grupoj['KOM.B'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('kom.c' == membreco):
+            membrecoj.append({'idGrupo':grupoj['KOM.C'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('d' == membreco):
+            membrecoj.append({'idGrupo':grupoj['d'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('fd' == membreco):
+            membrecoj.append({'idGrupo':grupoj['fd'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('vd' == membreco):
+            membrecoj.append({'idGrupo':grupoj['vd'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
+        elif ('jd' == membreco):
+            membrecoj.append({'idGrupo':grupoj['jd'],
+                              'komencdato':'2018-01-01',
+                              'findato': None,
+                              'dumviva': 1})
     return membrecoj
 
 def post_membrecoj(data):
-    headers = {'x-access-token': get_token()}
+    headers = {'x-access-token': util.get_token(token)}
     url = api_url + '/grupoj/' + str(data['idGrupo']) + '/anoj'
     request = requests.post(url, headers=headers, json=data)
     if request.status_code != 201:
@@ -160,10 +181,20 @@ def post_membrecoj(data):
 
 def krei_uzanton(uzanto):
     # prenas uea-kodo
-    ueakodo = uzanto[0].text.replace('&nbsp;', '')
+    pagxligilo = uzanto[0].a['href']
+    url = 'https://db.uea.org' + pagxligilo
+
+    try:
+        uzanto_request = urllib2.Request(url)
+        uzanto_reply = opener.open(uzanto_request)
+        soup_pagxo = BS(uzanto_reply.read())
+    except Exception as e:
+        print url
+        pass
 
     # prenas titolo
-    titoloj = ['S-ro', 'S-ino', 'Mag.', 'D-ro', 'D-ino', 'Pastro', 'Pastrino', 'F-ino']
+    titoloj = ['S-ro', 'S-ino', 'Mag.', 'D-ro', 'D-ino', 'Pastro', 'Pastrino',
+               'F-ino', 'Prof. D-ro', 'Prof-ino', 'Prof.']
     ebla_titolo = uzanto[1].contents[0].split(' ')[0]
     if ebla_titolo in titoloj:
         titolo = ebla_titolo
@@ -201,16 +232,56 @@ def krei_uzanton(uzanto):
     membrecoj = uzanto[8].text.replace('&nbsp;', '').replace(' ', '').split(',')
     membrecoj = get_membrecoj(membrecoj)
 
+    try:
+       hejma_telefono = soup_pagxo.find(text='Hejma telefono').parent.nextSibling.text.replace('&nbsp;', '')
+    except Exception as e:
+       hejma_telefono = ''
+       pass
+
+    try:
+       notoj = soup_pagxo.find(text='Notoj').parent.nextSibling.text.replace('&nbsp;', '')
+    except Exception as e:
+       notoj = ''
+       pass
+
+    try:
+       telportebla  = soup_pagxo.find(text='Poŝtelefono').parent.nextSibling.text.replace('&nbsp;', '')
+    except Exception as e:
+       telportebla = ''
+       pass
+
+    try:
+       ueakodo = soup_pagxo.find(text='UEA-kodo').parent.nextSibling.text.replace('&nbsp;', '').replace('-', '')
+       print ueakodo
+    except Exception as e:
+       ueakodo = ''
+       pass
+
+    try:
+        konst_kat = soup_pagxo.find(text='Konst. kat.').parent.nextSibling.text.replace('&nbsp;', '').split(', ')
+        konst_kat = get_membrecoj(konst_kat)
+        membrecoj = membrecoj + konst_kat
+    except Exception as e:
+       pass
+
+    try:
+        fd = soup_pagxo.find(text='Delegita fako').parent.nextSibling.text.replace('&nbsp;', '').split("\n")
+    except Exception as e:
+       pass
+
     uzanto_json = {'ueakodo': ueakodo,
                    'titolo': titolo,
                    'personanomo': persona_nomo,
                    'familianomo': familia_nomo,
                    'adreso': adreso,
                    'urbo': urbo,
+                   'telhejmo': hejma_telefono,
+                   'telportebla': telportebla,
                    'posxtkodo': posxtkodo,
                    'idLando': id_lando,
                    'retposxto': retadreso,
                    'naskigxtago': naskigxtago,
+                   'notoj': notoj,
                    'membrecoj': membrecoj}
 
     if (len(membrecoj) != 0):
