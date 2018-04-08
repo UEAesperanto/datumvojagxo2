@@ -102,17 +102,15 @@ kategorioj = [
                  'nomo': 'Delegito',
                  'priskribo': 'Delegitoj estas voluntulaj reprezentantoj \
                                de UEA tra la mondo. La delegito \
-                               okupiĝas pri la loka movado ĝenerale
+                               okupiĝas pri la loka movado ĝenerale',
                   'tipo': id_laborgrupo,
                   'juna': False
                 },
                 {
                   'mallongigilo': 'fd',
                   'nomo': 'Faka delegito',
-                  'priskribo': 'Delegitoj estas voluntulaj reprezentantoj \
-                                de UEA tra la mondo. \
-                                Fakdelegito okupiĝas pri temo, pri kiu li aŭ ŝi\
-                                havas aparte grandan scion, sperton aŭ intereson..',
+                  'priskribo':  'Fakdelegito okupiĝas pri temo, pri kiu li aŭ ŝi\
+                                havas grandan scion, sperton aŭ intereson.',
                    'tipo': id_laborgrupo,
                    'juna': False
                },

@@ -24,9 +24,10 @@ def insert_lando(lando, token):
     valuto = lando.contents[4].text
 
     response = requests.get(api_url + '/landoj?landkodo=' + landkodo)
-    if 'id' in response.json()[0]:
-        print response.json()[0]['id']
-        return response.json()[0]['id']
+    if len(response.json()) > 0:
+        if 'id' in response.json()[0]:
+            print response.json()[0]['id']
+            return response.json()[0]['id']
 
     data = {'radikoEo': radikoEO, 'finajxoEo': '', 'landkodo': landkodo, 'valuto': valuto}
     token = util.get_token(token)

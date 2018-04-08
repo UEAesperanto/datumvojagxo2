@@ -32,6 +32,10 @@ def get_landoj():
     response = requests.get(api_url + '/landoj')
     return dict(map(lambda x: [x['landkodo'], x['id']], response.json()))
 
+def get_fakoj():
+    response = requests.get(api_url + '/faktemoj')
+    return dict(map(lambda x: [x['nomo'], x['id']], response.json()))
+
 def get_grupoj():
     response = requests.get(api_url + '/grupoj')
     return dict(map(lambda x: [x['mallongigilo'], x['id']], response.json()))
@@ -61,7 +65,7 @@ def get_membroj():
     list_reply = opener.open(list_request)
     return list_reply.read()
 
-def get_membrecoj(membrecoj_str):
+def get_membrecoj(membrecoj_str, **kwargs):
     membrecoj = []
     for membreco in membrecoj_str:
         if ('ma201' in membreco) or ('mat201' in membreco):
@@ -156,8 +160,11 @@ def get_membrecoj(membrecoj_str):
                               'findato': None,
                               'dumviva': 1})
         elif ('fd' == membreco):
+            id_faktemoj = kwargs['id_faktemoj']
+            print id_faktemoj
             membrecoj.append({'idGrupo':grupoj['fd'],
                               'komencdato':'2018-01-01',
+                              'faktemoj': id_faktemoj,
                               'findato': None,
                               'dumviva': 1})
         elif ('vd' == membreco):
@@ -178,6 +185,17 @@ def post_membrecoj(data):
     request = requests.post(url, headers=headers, json=data)
     if request.status_code != 201:
         print url, data, request.status_code
+
+def add_faktemo(faktemo):
+    if faktemo in fakoj:
+        return fakoj[faktemo]
+    else:
+        headers = {'x-access-token': util.get_token(token)}
+        url = api_url + '/faktemoj'
+        data = {'nomo': faktemo, 'priskribo': ''}
+        request = requests.post(url, headers=headers, json=data)
+        fakoj[faktemo] = request.json()['insertId']
+        return request.json()['insertId']
 
 def krei_uzanton(uzanto):
     # prenas uea-kodo
@@ -252,20 +270,22 @@ def krei_uzanton(uzanto):
 
     try:
        ueakodo = soup_pagxo.find(text='UEA-kodo').parent.nextSibling.text.replace('&nbsp;', '').replace('-', '')
-       print ueakodo
     except Exception as e:
        ueakodo = ''
        pass
 
+    id_faktemoj =[]
     try:
-        konst_kat = soup_pagxo.find(text='Konst. kat.').parent.nextSibling.text.replace('&nbsp;', '').split(', ')
-        konst_kat = get_membrecoj(konst_kat)
-        membrecoj = membrecoj + konst_kat
+        del_faktemoj = soup_pagxo.find(text='Delegita fako').parent.nextSibling.text.replace('&nbsp;', '').split("\n")
+        for faktemo in del_faktemoj:
+            id_faktemoj.append(add_faktemo(faktemo))
     except Exception as e:
        pass
 
     try:
-        fd = soup_pagxo.find(text='Delegita fako').parent.nextSibling.text.replace('&nbsp;', '').split("\n")
+        konst_kat = soup_pagxo.find(text='Konst. kat.').parent.nextSibling.text.replace('&nbsp;', '').split(', ')
+        konst_kat = get_membrecoj(konst_kat, id_faktemoj = id_faktemoj)
+        membrecoj = membrecoj + konst_kat
     except Exception as e:
        pass
 
@@ -283,9 +303,9 @@ def krei_uzanton(uzanto):
                    'naskigxtago': naskigxtago,
                    'notoj': notoj,
                    'membrecoj': membrecoj}
-
     if (len(membrecoj) != 0):
         id_ano = post_uzanto(uzanto_json)
+        print "Enmetas datumojn por: " + str(uzanto_json) + str(id_ano)
         if(id_ano != -1) and (id_ano is not None):
             for membreco in membrecoj:
                 membreco['idAno'] = id_ano
@@ -293,13 +313,20 @@ def krei_uzanton(uzanto):
 
 landoj = get_landoj()
 grupoj = get_grupoj()
+fakoj = get_fakoj()
 reply_data_listo = get_membroj()
 soup = BS(reply_data_listo)
 
 uzantoj = soup.findAll('tr')
 uzantoj = uzantoj[2:len(uzantoj)]
 
-for uzanto in uzantoj:
-    soup = BS(str(uzanto))
-    uzanto = soup.findAll('td')
-    krei_uzanton(uzanto)
+for i in range(len(uzantoj)):
+    try:
+        soup = BS(str(uzantoj[i]))
+        uzanto = soup.findAll('td')
+        krei_uzanton(uzanto)
+    except Exception as e:
+        homo1 = open("homo1.html", "w")
+        homo1.write(str(i) + str(uzanto))
+        homo1.close()
+        raise e

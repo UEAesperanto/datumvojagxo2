@@ -12,17 +12,15 @@ from BeautifulSoup import BeautifulSoup as BS
 config = configparser.ConfigParser()
 config.read('config.cfg')
 
-api_url = config['api']['url'],
-token = ''
-token = util.get_token(token)
+api_url = config['api']['url']
 
 def get_landoj():
     response = requests.get(api_url + '/landoj')
     return dict(map(lambda x: [x['landkodo'], x['id']], response.json()))
 
-def post_perantoj(data):
+def post_perantoj(data, token):
     print "Enmetante datumojn de peranto: " + data['publikaNomo']
-    headers = {'x-access-token': token}
+    headers = {'x-access-token':  util.get_token(token)}
     request = requests.post(api_url + '/perantoj', headers=headers, data=data)
     if request.status_code == 201:
         print "Sukcese enmetita"
@@ -53,7 +51,7 @@ def get_perantoj():
             publikaNomo = peranto_info['title'].split(':')[1][1:]
             retadreso = peranto_info['j'] + '@' + peranto_info['rel']
             data = {'idLando': idLando, 'publikaNomo': publikaNomo, 'retadreso': retadreso}
-            post_perantoj(data)
+            post_perantoj(data, '')
         except Exception as e:
             print(e)
             pass
