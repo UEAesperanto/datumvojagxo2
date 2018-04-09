@@ -68,6 +68,7 @@ def get_membroj():
 def get_membrecoj(membrecoj_str, **kwargs):
     membrecoj = []
     for membreco in membrecoj_str:
+        membreco = membreco.replace(' ', '')
         if ('ma201' in membreco) or ('mat201' in membreco):
             length = len(membreco)
             jarcifero = int(membreco[length - 2 : length])
@@ -305,18 +306,21 @@ def krei_uzanton(uzanto):
                    'membrecoj': membrecoj}
     if (len(membrecoj) != 0):
         id_ano = post_uzanto(uzanto_json)
-        print "Enmetas datumojn por: " + str(uzanto_json) + str(id_ano)
-        if(id_ano != -1) and (id_ano is not None):
+        if (id_ano != -1) and (id_ano is not None):
             for membreco in membrecoj:
                 membreco['idAno'] = id_ano
                 post_membrecoj(membreco)
+        else:
+            ne_funkciis = open("ne_funkciis.txt", "a")
+            ne_funkciis.write("\nUzanto: " + str(uzanto_json) + "\n")
+            ne_funkciis.close()
+
 
 landoj = get_landoj()
 grupoj = get_grupoj()
 fakoj = get_fakoj()
 reply_data_listo = get_membroj()
 soup = BS(reply_data_listo)
-
 uzantoj = soup.findAll('tr')
 uzantoj = uzantoj[2:len(uzantoj)]
 
