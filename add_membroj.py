@@ -198,6 +198,13 @@ def add_faktemo(faktemo):
         fakoj[faktemo] = request.json()['insertId']
         return request.json()['insertId']
 
+def sen_ripetigxo(membrecoj):
+    sen_ripeta = []
+    for membreco in membrecoj:
+        if not membreco in sen_ripeta:
+            sen_ripeta.append(membreco)
+    return sen_ripeta
+
 def krei_uzanton(uzanto):
     # prenas uea-kodo
     pagxligilo = uzanto[0].a['href']
@@ -305,6 +312,7 @@ def krei_uzanton(uzanto):
                    'notoj': notoj,
                    'membrecoj': membrecoj}
     if (len(membrecoj) != 0):
+        membrecoj = sen_ripetigxo(membrecoj)
         id_ano = post_uzanto(uzanto_json)
         if (id_ano != -1) and (id_ano is not None):
             for membreco in membrecoj:
