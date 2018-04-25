@@ -40,6 +40,12 @@ def get_grupoj():
     response = requests.get(api_url + '/grupoj')
     return dict(map(lambda x: [x['mallongigilo'], x['id']], response.json()))
 
+def get_uzantoj():
+    headers = {'x-access-token': util.get_token(token)}
+    response = requests.get(api_url + '/uzantoj', headers=headers)
+    return map(lambda x: x['ueakodo'][:4], response.json())
+
+
 def get_membroj():
     util.ensaluti(opener)
     data_listo = urllib.urlencode(
@@ -205,8 +211,13 @@ def sen_ripetigxo(membrecoj):
             sen_ripeta.append(membreco)
     return sen_ripeta
 
-def krei_uzanton(uzanto):
+def krei_uzanton(uzanto, jamaj_uzantoj):
     # prenas uea-kodo
+    ueakodo = uzanto[0].text.replace('&nbsp;', '')
+    if (ueakodo in jamaj_uzantoj):
+        return
+
+    # Ligilo al informplena paĝo
     pagxligilo = uzanto[0].a['href']
     url = 'https://db.uea.org' + pagxligilo
 
@@ -331,12 +342,13 @@ reply_data_listo = get_membroj()
 soup = BS(reply_data_listo)
 uzantoj = soup.findAll('tr')
 uzantoj = uzantoj[2:len(uzantoj)]
+jamaj_uzantoj = get_uzantoj()
 
 for i in range(len(uzantoj)):
     try:
         soup = BS(str(uzantoj[i]))
         uzanto = soup.findAll('td')
-        krei_uzanton(uzanto)
+        krei_uzanton(uzanto, jamaj_uzantoj)
     except Exception as e:
         homo1 = open("homo1.html", "w")
         homo1.write(str(i) + str(uzanto))
