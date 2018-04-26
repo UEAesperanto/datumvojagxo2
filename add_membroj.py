@@ -263,7 +263,9 @@ def krei_uzanton(uzanto, jamaj_uzantoj):
     retadreso = uzanto[6].text.replace('&nbsp;', '')
 
     #prenas naskigxtago
-    naskigxtago = uzanto[7].text.replace('&nbsp;', '').replace('/','-')
+    naskigxtago = uzanto[7].text.replace('&nbsp;', '').replace('00', '01').replace('/','-')
+    if naskigxtago == '':
+        naskigxtago = '1859-12-15'
 
     #prenas membrecoj
     membrecoj = uzanto[8].text.replace('&nbsp;', '').replace(' ', '').split(',')
