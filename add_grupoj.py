@@ -121,24 +121,87 @@ kategorioj = [
                                de UEA tra la mondo. \
                                Junualaraj delegitoj okupiĝas pri la loka junulara movado.',
                   'tipo': id_laborgrupo,
-                  'juna': True
+                  'juna': False
               },
-             {
+              {
                'mallongigilo': 'vd',
                'nomo': 'Vicdelegito',
                'priskribo': 'Delegitoj estas voluntulaj reprezentantoj \
                              de UEA tra la mondo. \
                              Vicdelegitoj helpas kaj anstataŭas la Delegiton, speciale en grandaj urboj',
                 'tipo': id_laborgrupo,
-                'juna': True
-            },
-               {
+                'juna': False
+              },
+              {
                 'mallongigilo': 'HM',
                 'nomo': 'Honora Membro',
                 'priskribo': 'esperantistoj, kiuj faris gravajn servojn al la tutmonda Esperanto-movado.',
                 'tipo': None,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'LA.A',
+                'nomo': 'landa asocio aliĝinta al UEA',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'LS.A',
+                'nomo': 'landa sekcio de TEJO, aliĝinta',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
                 'juna': True
-               }
+              },
+              {
+                'mallongigilo': 'LS.N',
+                'nomo': 'landa junulara organizaĵo, nealiĝinta (aŭ junulara kontaktadreso)',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'FA.A',
+                'nomo': 'faka asocio, aliĝinta',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'FA.K',
+                'nomo': 'faka asocio, kunlaboranta kontrakte',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'FA.N',
+                'nomo': 'faka asocio, sendependa (nealiĝinta)',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'FS.A',
+                'nomo': 'faka sekcio de TEJO',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': True
+              },
+              {
+                'mallongigilo': 'LG',
+                'nomo': 'loka grupo',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              },
+              {
+                'mallongigilo': 'LK',
+                'nomo': 'loka klubo',
+                'priskribo': '',
+                'tipo': id_laborgrupo,
+                'juna': False
+              }
             ]
 
 def insert_kategorioj(token):
