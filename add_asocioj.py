@@ -168,8 +168,11 @@ def krei_uzanton(uzanto):
     #prenas posxtkodo
     posxtkodo = uzanto[4].text.replace('&nbsp;', '')
 
-    #prenas idLando
-    id_lando = landoj[uzanto[5].img['alt']]
+    try:
+       #prenas idLando
+       id_lando = landoj[uzanto[5].img['alt']]
+    except:
+       id_lando = -1
 
     #prenas retadreso
     retadreso = uzanto[6].text.replace('&nbsp;', '')
@@ -215,7 +218,8 @@ def krei_uzanton(uzanto):
         konst_kat = soup_pagxo.find(text='Konst. kat.').parent.nextSibling.text.replace('&nbsp;', '').split(', ')
         membrecoj = get_membrecoj(konst_kat)
     except Exception as e:
-       pass
+        membrecoj = []
+        pass
 
     uzanto_json = {'ueakodo': ueakodo,
                    'titolo': '',
@@ -250,8 +254,13 @@ soup = BS(asocioj_reply)
 asocioj = soup.findAll('tr')
 asocioj = asocioj[2:len(asocioj)]
 
-soup1 = BS(str(asocioj[0]))
-asocio = soup1.findAll('td')
-krei_uzanton(asocio)
+for asocio in asocioj:
+    try:
+        soup1 = BS(str(asocio))
+        asocio = soup1.findAll('td')
+        krei_uzanton(asocio)
+    except Exception as e:
+        print asocio
+        print e
 
 
